@@ -3,6 +3,7 @@ package dao;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -480,5 +481,83 @@ public class BbsDao {
 			DBClose.close(conn, psmt, null);
 		}
 		return count > 0?true:false;
+	}
+	
+	
+	/**
+	 * 답글 달기
+	 * @param seq 부모 글번호
+	 * @param bbs 새로운 답글
+	 * @return
+	 */
+	public boolean answer(int seq, BbsDto bbs) {
+		
+		// 1. update
+		String updateSql = " UPDATE BBS \n"
+						 + " SET STEP = STEP + 1 \n"
+						 + " WHERE REF = (SELECT REF FROM (SELECT REF FROM BBS A WHERE SEQ=?) A)"
+						 + "  AND STEP > (SELECT STEP FROM BBS B WHERE SEQ = ?) B);";
+		
+		// 2. insert
+		String insertSql = "INSERT INTO BBS(ID, "
+						 + "				REF, STEP, DEPTH,"
+						 + "				TITLE, CONTENT, WDATE, DEL, READCOUNT)"
+						 + "		 VALUES(?, "
+						 + "				(SELECT REF FROM BBS A WHERE SEQ=?), "
+						 + "				(SELECT STEP FROM BBS B WHERE SEQ=?) + 1, "
+						 + "				(SELECT DEPTH FROM BBS C WHERE SEQ=?) + 1,"
+						 + "				?, ?, NOW(), 0, 0);";
+		
+		Connection conn = null;
+		PreparedStatement psmt = null;
+		int count = 0;
+				
+		try {
+			conn = DBConnection.getConnection();
+			conn.setAutoCommit(false); // default : false;
+			
+			// 1. update
+			psmt = conn.prepareStatement(updateSql);
+			psmt.setInt(1, seq);
+			psmt.setInt(2, seq);
+			
+			count = psmt.executeUpdate();
+			
+			// 2. psmt 초기화
+			psmt.clearParameters();
+			
+			// 3. insert
+			psmt = conn.prepareStatement(insertSql);
+			psmt.setString(1, bbs.getId());
+			psmt.setInt(2, seq);
+			psmt.setInt(3, seq);
+			psmt.setInt(4, seq);
+			psmt.setString(5, bbs.getTitle());
+			psmt.setString(5, bbs.getContent());
+			
+			count += psmt.executeUpdate();
+			
+			// 4.commit;
+			conn.commit();
+			
+		} catch (Exception e) {		
+			// rollback;
+			try {
+				conn.rollback();
+			} catch (SQLException e1) {
+				e1.printStackTrace();
+			}
+			e.printStackTrace();
+		} finally {
+			try {
+				conn.setAutoCommit(true);
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			
+			DBClose.close(conn, psmt, null);
+		}
+		
+		return count > 0? true:false;
 	}
 }
