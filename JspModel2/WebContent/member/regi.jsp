@@ -76,6 +76,7 @@ $(function () {
 			url:"../member?param=idcheck",
 			data:{ "id":$("#id").val() },
 			success:function( data ){
+				
 				if(data.msg.trim() == "YES"){
 					$("#idcheck").css("color", "#0000ff");
 					$("#idcheck").html('사용할 수 있는 id입니다');

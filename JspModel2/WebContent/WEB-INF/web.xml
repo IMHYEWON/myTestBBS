@@ -15,8 +15,13 @@
   	<servlet-class>controller.MemberController</servlet-class>
   </servlet>
   
+    <servlet>
+  	<servlet-name>Bbs</servlet-name>
+  	<servlet-class>controller.BbsController</servlet-class>
+  </servlet>
+  
   <servlet-mapping>
-  	<servlet-name>Member</servlet-name>
-  	<url-pattern>/member</url-pattern>
+  	<servlet-name>Bbs</servlet-name>
+  	<url-pattern>/bbs</url-pattern>
   </servlet-mapping>
 </web-app>
