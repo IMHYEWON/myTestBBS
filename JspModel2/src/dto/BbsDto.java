@@ -13,6 +13,32 @@ public class BbsDto implements Serializable {
 	
 	private String title;	// 제목
 	private String content;	// 내용
+	
+	private String wdate; 	// 작성일
+	
+	private int del;		// 삭제여부
+	private int readcount;	// 조회수
+	
+	
+	private String categoryCd;
+	private String cdTitle;
+	
+	public String getCategoryCd() {
+		return categoryCd;
+	}
+
+	public void setCategoryCd(String categoryCd) {
+		this.categoryCd = categoryCd;
+	}
+
+	public String getCdTitle() {
+		return cdTitle;
+	}
+
+	public void setCdTitle(String cdTitle) {
+		this.cdTitle = cdTitle;
+	}
+
 	public int getSeq() {
 		return seq;
 	}
@@ -93,13 +119,6 @@ public class BbsDto implements Serializable {
 		this.readcount = readcount;
 	}
 
-
-
-	private String wdate; 	// 작성일
-	
-	private int del;		// 삭제여부
-	private int readcount;	// 조회수
-	
 	public BbsDto() {
 		
 	}
@@ -129,6 +148,24 @@ public class BbsDto implements Serializable {
 		this.readcount = readcount;
 	}
 
+	public BbsDto(int seq, String id, int ref, int step, int depth, String title, String content, String wdate, int del,
+			int readcount, String categoryCd, String cdTitle) {
+		super();
+		this.seq = seq;
+		this.id = id;
+		this.ref = ref;
+		this.step = step;
+		this.depth = depth;
+		this.title = title;
+		this.content = content;
+		this.wdate = wdate;
+		this.del = del;
+		this.readcount = readcount;
+		this.categoryCd = categoryCd;
+		this.cdTitle = cdTitle;
+	}
+
+	
 	
 	
 	
