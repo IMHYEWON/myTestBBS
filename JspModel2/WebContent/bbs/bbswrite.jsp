@@ -1,3 +1,4 @@
+<%@page import="dto.CategoryDto"%>
 <%@page import="java.util.List"%>
 <%@page import="dao.BbsDao"%>
 <%@page import="dto.BbsDto"%>
@@ -13,8 +14,8 @@
 	request.setCharacterEncoding("utf-8");	
 	Object obj = session.getAttribute("login");
 	MemberDto mem = null;
-	MemberDao dao = MemberDao.getInstance();	
-	obj = dao.getMember("hrywehf");
+	MemberDao mdao = MemberDao.getInstance();	
+	obj = mdao.getMember("hrywehf");
 	
 	if(obj ==null) { //세션이 끊어졌을때 > 매 페이지마다 해줘야됨 > 스프링에서는web.xml에서 해줌
 		%>
@@ -28,7 +29,14 @@
 	mem = (MemberDto)obj;
 	
 %>
-    
+<%
+	BbsDao dao = new BbsDao();
+
+	List<CategoryDto> list = dao.getCategory();
+	int catLen = list.size();
+
+
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -71,9 +79,33 @@
 		</colgroup>
 	<tr>
 		<th>아이디</th>
-		<td>
+		<td style="text-align:left;">
 			<input type="text" id="id"	  name="id" value="<%=mem.getId() %>">
 		</td>
+	</tr>
+	<tr>
+	<th>카테고리</th>
+	<td style="text-align:left;">
+		&nbsp;
+		<select id="cateogry" style="width:200;">카테고리
+		<option>카테고리 선택</option>
+			<%
+				for(int i=0 ; i<catLen ; i++) {
+					CategoryDto cat = list.get(i);
+					%>
+					<option value="<%=cat.getCategoryCd()%>"><%=cat.getCdTitle() %></option>
+					<% 
+				}
+			%>
+			
+		</select>
+		&nbsp;
+		
+		<select id="detailCateogry">세부 카테고리
+			<option>세부 카테고리 선택</option>
+		</select>
+	
+	</td>
 	</tr>
 	<tr>
 		<th>제목</th>

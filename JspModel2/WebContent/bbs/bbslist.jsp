@@ -109,12 +109,13 @@ if(search == null) {
 <table border="1">
 	<colgroup>
 		<col width="70">
+		<col width="100">
 		<col width="600">
 		<col width="100">
 		<col width="150">
 	</colgroup>
 	<tr>
-		<th>번호</th><th>제목</th><th>조회수</th><th>작성자</th>
+		<th>번호</th><th>카테고리</th><th>제목</th><th>조회수</th><th>작성자</th>
 	</tr>
 	
 	<%
@@ -130,6 +131,7 @@ if(search == null) {
 			%>
 			<tr>
 				<th><%=i+1 %></th>
+				<td><%=bbs.getCdTitle() %></td>
 				<td align="left">
 					<%-- <a href="<%=request.getContextPath() %>/bbs?param=bbsdetail&seq=<%=bbs.getSeq()%>"> --%>
 					<a href ="bbsdetail.jsp?seq=<%=bbs.getSeq()%>" >
