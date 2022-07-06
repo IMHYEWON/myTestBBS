@@ -10,6 +10,8 @@ import java.util.List;
 import db.DBClose;
 import db.DBConnection;
 import dto.BbsDto;
+import dto.CategoryDto;
+import dto.DetailCodeDto;
 
 public class BbsDao {
 	
@@ -35,9 +37,11 @@ public class BbsDao {
 		
 		List<BbsDto> list = new ArrayList<BbsDto>();
 		
-		String sql = "SELECT SEQ, ID, REG, STEP, DEPTH, "
+		String sql = "SELECT SEQ, ID, REF, STEP, DEPTH, "
 				   + "		TITLE, CONTENT, WDATE, DEL, READCOUNT"
-				   + " FROM BBS"
+				   + " ,CATEGORY_CD, C.CODE_TITLE\n"
+				   + " FROM BBS B, CATEGORYCD C\n"
+				   + " WHERE B.CATEGORY_CD = C.P_CODE\n"
 				   + "ORDER BY REF DESC, STEP ASC";
 		
 		
@@ -60,7 +64,10 @@ public class BbsDao {
 									rs.getString(7),//content
 									rs.getString(8),
 									rs.getInt(9),
-									rs.getInt(10));
+									rs.getInt(10),
+									rs.getString(11),
+									rs.getString(12)
+									);
 				list.add(dto);
 				
 				System.out.println("get bbs success");
@@ -312,13 +319,13 @@ public class BbsDao {
 		} 
 		
 		String sql = "SELECT SEQ, ID, REF, STEP, DEPTH,"
-				   + " TITLE, CONTENT, WDATE, DEL, READCOUNT\n"
+				   + " TITLE, CONTENT, WDATE, DEL, READCOUNT,CATEGORY_CD, CODE_TITLE\n"
 				   + " FROM " ;
 
 		sql += "( SELECT ROW_NUMBER() OVER (ORDER BY REF DESC, STEP ASC) AS RNUM,\n"
-				+ "  		        SEQ, ID, REF, STEP, DEPTH, TITLE, CONTENT, WDATE, DEL, READCOUNT\n"
-				+ "  		   FROM BBS  \n"
-				+ " WHERE DEL != 1\n";
+				+ "  		        SEQ, ID, REF, STEP, DEPTH, TITLE, CONTENT, WDATE, DEL, READCOUNT, CATEGORY_CD, CODE_TITLE\n"
+				+ "  		   FROM BBS B, CATEGORYCD C \n"
+				+ " WHERE DEL != 1 AND B.CATEGORY_CD = C.P_CODE\n";
 		sql += sWord;
 		sql += "ORDER BY REF DESC, STEP ASC) A \n";
 		sql += "WHERE RNUM BETWEEN ? AND ?";
@@ -354,7 +361,10 @@ public class BbsDao {
 									rs.getString(7),//content
 									rs.getString(8),
 									rs.getInt(9),
-									rs.getInt(10));
+									rs.getInt(10),
+									rs.getString(11),
+									rs.getString(12)
+									);
 				list.add(dto);
 				
 				System.out.println("get bbs success");
@@ -559,5 +569,91 @@ public class BbsDao {
 		}
 		
 		return count > 0? true:false;
+	}
+	
+	
+	/**
+	 * CategoryDto 상위 카테고리
+	 * @param seq
+	 * @return
+	 */
+	public List<CategoryDto> getCategory() {
+		
+		Connection conn = null;
+		PreparedStatement psmt = null;
+		ResultSet rs = null;
+		
+		
+		String sql = "SELECT P_CODE, CODE_TITLE, USE_YN\n"
+				   + " FROM CATEGORYCD\n" 
+				   + "WHERE USE_YN = 'Y'";
+		
+		List<CategoryDto> list = new ArrayList<CategoryDto>();
+		CategoryDto dto = null;   
+		try {
+			conn = DBConnection.getConnection();			
+			psmt = conn.prepareStatement(sql);
+			rs = psmt.executeQuery();
+			
+			while(rs.next()) {
+				dto = new CategoryDto(rs.getString(1),	//seq
+									rs.getString(2),//id
+									(rs.getString(3)).charAt(0));				
+
+				list.add(dto);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			DBClose.close(conn, psmt,  rs);
+		}
+		
+		return list;
+	}
+	
+
+	/**
+	 * DetailCodeDto 하위 카테고리
+	 * @param seq
+	 * @return
+	 */
+	public List<DetailCodeDto> getDetailCategory(String upcode) {
+		
+		Connection conn = null;
+		PreparedStatement psmt = null;
+		ResultSet rs = null;
+		
+		
+		String sql = "SELECT UPCODE, P_CODE, CODE_TITLE, USE_YN\n"
+				   + " FROM DETAILCD \n" 
+				   + "WHERE USE_YN = 'Y'"
+				   + "  AND UPCODE = ?";
+		
+		
+		List<DetailCodeDto> list = new ArrayList<DetailCodeDto>();
+
+		DetailCodeDto dto = null;   
+		try {
+			conn = DBConnection.getConnection();			
+			psmt = conn.prepareStatement(sql);
+			psmt.setString(1, upcode);
+			
+			rs = psmt.executeQuery();
+			
+			while(rs.next()) {
+				dto = new DetailCodeDto(rs.getString(1),
+									rs.getString(2),	//seq
+									rs.getString(3),//id
+									(rs.getString(4)).charAt(0));				
+				
+				list.add(dto);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			DBClose.close(conn, psmt,  rs);
+		}
+		
+		return list;
 	}
 }
