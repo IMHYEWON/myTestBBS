@@ -12,6 +12,7 @@ import db.DBConnection;
 import dto.BbsDto;
 import dto.CategoryDto;
 import dto.DetailCodeDto;
+import enums.TableStatus;
 
 public class BbsDao {
 	
@@ -627,7 +628,7 @@ public class BbsDao {
 		/* 만약 USE_YN 값 타입이 바뀐다면? 값을 포함하는 쿼리를 모두찾아서 수정해야 한다 ! */
 		String sql = "SELECT UPCODE, P_CODE, CODE_TITLE, USE_YN\n"
 				   + " FROM DETAILCD \n" 
-				   + "WHERE USE_YN = '1'"
+				   + "WHERE USE_YN = ?"
 				   + "  AND UPCODE = ?";
 		
 		
@@ -637,7 +638,8 @@ public class BbsDao {
 		try {
 			conn = DBConnection.getConnection();			
 			psmt = conn.prepareStatement(sql);
-			psmt.setString(1, upcode);
+			psmt.setString(1, (TableStatus.Y).getTable1Value());
+			psmt.setString(2, upcode);
 			
 			rs = psmt.executeQuery();
 			
