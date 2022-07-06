@@ -624,9 +624,10 @@ public class BbsDao {
 		ResultSet rs = null;
 		
 		
+		/* 만약 USE_YN 값 타입이 바뀐다면? 값을 포함하는 쿼리를 모두찾아서 수정해야 한다 ! */
 		String sql = "SELECT UPCODE, P_CODE, CODE_TITLE, USE_YN\n"
 				   + " FROM DETAILCD \n" 
-				   + "WHERE USE_YN = 'Y'"
+				   + "WHERE USE_YN = '1'"
 				   + "  AND UPCODE = ?";
 		
 		
